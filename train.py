@@ -12,6 +12,8 @@ import argparse
 from torchsummary import summary
 from model import SnoutNet
 from dataset import SnoutNoseDataset, DataLoader
+#from extra import SnoutNoseDataset, DataLoader
+
 
 save_file = 'weights.pth'
 n_epochs = 30
@@ -32,7 +34,6 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, scheduler, device, 
             # The returned value from train_loader is a tuple need to unpack it
             image = data[0]
             label = data[1]
-            label.clone().detach()
             image = image.to(device=device)
             outputs = model(image)
             # print("Output shape:", outputs.shape)
