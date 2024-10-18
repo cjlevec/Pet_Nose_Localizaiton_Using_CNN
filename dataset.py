@@ -4,9 +4,6 @@ ColabPath = "/content/drive/My Drive/oxford-iiit-pet-noses/"
 HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
 ScottPath = "/Users/scottdoggett/PycharmProjects/Pet_Nose_Localizaiton_Using_CNN/oxford-iiit-pet-noses/"
 
-file_id = 'YOUR_FILE_ID'
-data_url = f'https://drive.google.com/uc?id={file_id}'
-
 import os # module used for interacting with files, directory paths, and env vars
 import pandas as pd # library used for data analysis, structuring, and filtering
 import torch
@@ -24,8 +21,6 @@ transform1 = v2.Compose([  # v2 is an instance of torchvisions transforms module
 class SnoutNoseDataset (Dataset):
     def __init__ (self, annotations_file, img_dir, transform = transform1, target_transform = None):
         self.img_labels = pd.read_csv(annotations_file)
-    # can directly put file name here but not optimal since we have seperate train and test sets 
-    # also we can use read_csv on the .txt files since the data is seperated by commas
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
