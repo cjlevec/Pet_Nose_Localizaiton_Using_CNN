@@ -2,6 +2,7 @@
 # Added so that I can run the code on PyCharm and Colab
 ColabPath = "/content/drive/My Drive/oxford-iiit-pet-noses/"
 HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
+ScottPath = "/Users/scottdoggett/PycharmProjects/Pet_Nose_Localizaiton_Using_CNN/oxford-iiit-pet-noses"
 
 file_id = 'YOUR_FILE_ID'
 data_url = f'https://drive.google.com/uc?id={file_id}'
