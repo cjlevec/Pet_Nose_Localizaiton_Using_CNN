@@ -1,16 +1,17 @@
-# custom dataloader classes must implement three specific functions:
-# init, len, and getitem
+
+# Added so that I can run the code on PyCharm and Colab
+ColabPath = "/content/drive/My Drive/oxford-iiit-pet-noses/"
+HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
+
+file_id = 'YOUR_FILE_ID'
+data_url = f'https://drive.google.com/uc?id={file_id}'
 
 import os # module used for interacting with files, directory paths, and env vars
-
-import gdrive
 import pandas as pd # library used for data analysis, structuring, and filtering
-import numpy as np
 import torch
-from mpl_toolkits.mplot3d.proj3d import transform
+#from mpl_toolkits.mplot3d.proj3d import transform
 from torchvision.io import read_image
 from torch.utils.data import DataLoader, Dataset # for dataloader, and parent Dataset class
-import torchvision.transforms.functional as F
 from torchvision.transforms import v2
 
 # Transform for orignial images -> 227x227 -> tensor
@@ -32,6 +33,10 @@ class SnoutNoseDataset (Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
+
+        # Combines the img directory and the specific image file name into one complete path
+        img_filename = self.img_labels.iloc[idx, 0]
+
         # Combines the img directory and the specific image file name into one complete path
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path)  # function comes from torchvision
@@ -42,19 +47,17 @@ class SnoutNoseDataset (Dataset):
         elif image.size(0) == 4:  # If it has an alpha channel
             image = image[:3, :, :]  # Keep only the RGB channels
 
+        # Save original image dimensions for scaling calculation
+        original_height, original_width = image.shape[1], image.shape[2]
+
         # Extract labels in string format: "(311, 152)"
         label_str = self.img_labels.iloc[idx, 1]
-
         # Remove parentheses and split string into two parts: ['311', '152']
         xy_coords = label_str.strip("()").split(",")
-
         # Convert parts into ints: x = 311, y = 152
         x, y = int(xy_coords[0]), int(xy_coords[1])
-
         # Make into tensor
         label_tensor = torch.tensor([x, y], dtype=torch.float32)
-
-        original_height, original_width = image.shape[1], image.shape[2]
 
         if self.transform:
             image = self.transform(image)
@@ -68,23 +71,23 @@ class SnoutNoseDataset (Dataset):
         # Convert to tensor with 2 elements (x, y)
         scaled_coordinates = torch.tensor([scaled_x, scaled_y], dtype=torch.float32)
 
-        return image, scaled_coordinates
+        return image, scaled_coordinates    # Both in tensor form
 
 
 ##### MAIN ####
-
+"""
 import random
 import matplotlib.pyplot as plt
 
-trainSet = SnoutNoseDataset("/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/train_noses.txt",
-                            "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/images-original/images"
+trainSet = SnoutNoseDataset(ColabPath+"train_noses.txt",
+                            ColabPath+"images-original/images"
                             , transform=transform1)
-testSet = SnoutNoseDataset("/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/test_noses.txt",
-                           "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/images-original/images"
+testSet = SnoutNoseDataset(HomePath+"test_noses.txt",
+                           HomePath+"images-original/images"
                            , transform=transform1)
 
-train_dataloader = DataLoader(trainSet, batch_size=64, shuffle=True)  # experiment with batch_size
-test_dataloader = DataLoader(testSet, batch_size=64, shuffle=True)
+train_dataloader = DataLoader(trainSet, batch_size=61, shuffle=True)  # experiment with batch_size
+test_dataloader = DataLoader(testSet, batch_size=61, shuffle=True)
 
 # Number of random images to display
 num_images = 5
@@ -96,5 +99,5 @@ for idx in range (0, num_images):
     image_test, label = trainSet[idx]  # Get the image and label
     plt.imshow(image_test.permute(1, 2, 0))  # Permute the dimensions to (height, width, channels) from (ch, height, width)
     plt.title(f"Label: {label}")  # Set the title to the label
-    plt.plot(label[0], label[1], marker='o', color='red', markersize=10)
-    plt.show()  # Show the image
+    plt.plot(label[0], label[1], marker='o', color='red', markersize=10)"""
+    #plt.show()  # Show the image

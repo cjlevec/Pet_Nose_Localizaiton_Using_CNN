@@ -12,12 +12,14 @@ import argparse
 from torchsummary import summary
 from model import SnoutNet
 from dataset import SnoutNoseDataset, DataLoader
-#from extra import SnoutNoseDataset, DataLoader
 
+# Added so that I can run the code on PyCharm and Colab
+ColabPath = "/content/drive/My Drive/ELEC 475 Lab 2 CO/oxford-iiit-pet-noses/"
+HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
 
 save_file = 'weights.pth'
 n_epochs = 30
-batch_size = 64
+batch_size = 61
 bottleneck_size = 32
 plot_file = 'plot_file.png'
 
@@ -34,13 +36,12 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, scheduler, device, 
             # The returned value from train_loader is a tuple need to unpack it
             image = data[0]
             label = data[1]
+            # Pass dataset to GPU
             image = image.to(device=device)
+            label = label.to(device=device)
             outputs = model(image)
-            # print("Output shape:", outputs.shape)
-            # print("Label shape:", label.shape)
 
             loss = loss_fn(outputs, label)
-            # loss = loss_fn(outputs, image) # Calculate loss using loss function
             optimizer.zero_grad() # Reset gradient each epoch
             loss.backward() # Compute the gradient (vector) through backpropagation and slowly nudge the weights of the weights vector
                             # Goal is to come to a local minima of the cost function in a non-linear way
@@ -78,13 +79,13 @@ def init_weights(m):
 
 
 def main():
-
+    import torch
     global save_file, n_epochs, batch_size, plot_file
 
     print('running main ...')
 
     #   read arguments from command line
-    argParser = argparse.ArgumentParser()
+    """argParser = argparse.ArgumentParser()
     argParser.add_argument('-s', metavar='state', type=str, help='parameter file (.pth)')
     argParser.add_argument('-e', metavar='epochs', type=int, help='# of epochs [30]')
     argParser.add_argument('-b', metavar='batch size', type=int, help='batch size [32]')
@@ -99,7 +100,7 @@ def main():
     if args.b != None:
         batch_size = args.b
     if args.p != None:
-        plot_file = args.p
+        plot_file = args.p"""
 
     print('\t\tn epochs = ', n_epochs)
     print('\t\tbatch size = ', batch_size)
@@ -114,7 +115,7 @@ def main():
     model = SnoutNet()
     model.to(device)
     model.apply(init_weights)
-    summary(model, input_size=(3, 227, 227), device='cpu')
+    summary(model, input_size=(3, 227, 227), device='cuda')
 
     transform1 = v2.Compose([  # v2 is an instance of torchvisions transforms module
         v2.Resize((227, 227)),  # resize to desired shape
@@ -122,15 +123,15 @@ def main():
         v2.ToDtype(torch.float32, scale=True)
     ])
 
-    trainSet = SnoutNoseDataset("/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/train_noses.txt",
-                                "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/images-original/images"
+    trainSet = SnoutNoseDataset(ColabPath+"train_noses.txt",
+                                ColabPath+"images-original/images"
                                 , transform=transform1)
-    testSet = SnoutNoseDataset("/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/test_noses.txt",
-                               "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/images-original/images"
+    testSet = SnoutNoseDataset(ColabPath+"test_noses.txt",
+                               ColabPath+"images-original/images"
                                , transform=transform1)
 
-    train_dataloader = DataLoader(trainSet, batch_size=64, shuffle=True)  # experiment with batch_size
-    test_dataloader = DataLoader(testSet, batch_size=64, shuffle=True)
+    train_dataloader = DataLoader(trainSet, batch_size=61, shuffle=True)  # experiment with batch_size
+    test_dataloader = DataLoader(testSet, batch_size=61, shuffle=True)
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min')
