@@ -126,15 +126,13 @@ def main():
     # Manually change path names if running on cpu
     trainSet = SnoutNoseDataset(ColabPath+"train_noses.txt",
                                 ColabPath+"images-original/images",
-                                transform=transform1,
-                                num_workers=4)
+                                transform=transform1)
 
     testSet = SnoutNoseDataset(ColabPath+"test_noses.txt",
                                ColabPath+"images-original/images",
-                               transform=transform1,
-                               num_workers=4)
+                               transform=transform1)
 
-    train_dataloader = DataLoader(trainSet, batch_size=batch_size, shuffle=True)  # experiment with batch_size
+    train_dataloader = DataLoader(trainSet, batch_size=batch_size, shuffle=True, num_workers=4)  # experiment with batch_size
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min')
