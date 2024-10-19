@@ -12,7 +12,7 @@ from torchvision.io import read_image
 from torch.utils.data import DataLoader, Dataset # for dataloader, and parent Dataset class
 from torchvision.transforms import v2
 
-# Transform for orignial images -> 227x227 -> tensor
+# Transform for original images -> 227x227 -> tensor
 transform1 = v2.Compose([  # v2 is an instance of torchvisions transforms module
     v2.Resize((227, 227)),  # resize to desired shape
     v2.ToDtype(torch.float32, scale=True)
@@ -29,9 +29,6 @@ class SnoutNoseDataset (Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
-
-        # Combines the img directory and the specific image file name into one complete path
-        img_filename = self.img_labels.iloc[idx, 0]
 
         # Combines the img directory and the specific image file name into one complete path
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
@@ -68,32 +65,3 @@ class SnoutNoseDataset (Dataset):
         scaled_coordinates = torch.tensor([scaled_x, scaled_y], dtype=torch.float32)
 
         return image, scaled_coordinates    # Both in tensor form
-
-
-##### MAIN ####
-"""
-import random
-import matplotlib.pyplot as plt
-
-trainSet = SnoutNoseDataset(ColabPath+"train_noses.txt",
-                            ColabPath+"images-original/images"
-                            , transform=transform1)
-testSet = SnoutNoseDataset(HomePath+"test_noses.txt",
-                           HomePath+"images-original/images"
-                           , transform=transform1)
-
-train_dataloader = DataLoader(trainSet, batch_size=61, shuffle=True)  # experiment with batch_size
-test_dataloader = DataLoader(testSet, batch_size=61, shuffle=True)
-
-# Number of random images to display
-num_images = 5
-# Get random indices from the dataset
-random_indices = random.sample(range(len(trainSet)), num_images)
-
-# Loop over the random indices
-for idx in range (0, num_images):
-    image_test, label = trainSet[idx]  # Get the image and label
-    plt.imshow(image_test.permute(1, 2, 0))  # Permute the dimensions to (height, width, channels) from (ch, height, width)
-    plt.title(f"Label: {label}")  # Set the title to the label
-    plt.plot(label[0], label[1], marker='o', color='red', markersize=10)"""
-    #plt.show()  # Show the image

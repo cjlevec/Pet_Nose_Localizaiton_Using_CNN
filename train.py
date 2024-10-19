@@ -1,9 +1,11 @@
-import os # module used for interacting with files, directory paths, and env vars
-import pandas as pd # library used for data analysis, structuring, and filtering
+# For Colab Pruposes
+from google.colab import drive
+drive.mount('/content/drive')
+import sys
+sys.path.append('/content/drive/MyDrive/ELEC 475 Lab 2 CO')
+
 import torch
 import torch.nn as nn
-from torchvision.io import read_image
-# from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import v2   # module for image transformations
 import torch.optim as optim
 import matplotlib.pyplot as plt
@@ -19,20 +21,19 @@ HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
 
 save_file = 'weights.pth'
 n_epochs = 30
-batch_size = 61
-bottleneck_size = 32
+batch_size = 256
 plot_file = 'plot_file.png'
 
 def train(n_epochs, optimizer, model, loss_fn, train_loader, scheduler, device, save_file=None, plot_file=None):
-    print('training ...')
+    print('Training ...')
     model.train()
 
     losses_train = []
     for epoch in range(1, n_epochs+1):
-
-        print('epoch ', epoch)
+        print('Epoch ', epoch)
         loss_train = 0.0
         for data in train_loader:
+            print('New batch...')
             # The returned value from train_loader is a tuple need to unpack it
             image = data[0]
             label = data[1]
@@ -115,23 +116,25 @@ def main():
     model = SnoutNet()
     model.to(device)
     model.apply(init_weights)
-    summary(model, input_size=(3, 227, 227), device='cuda')
+    summary(model, input_size=(3, 227, 227), device='cuda') # Manually change to cpu if running on cpu
 
-    transform1 = v2.Compose([  # v2 is an instance of torchvisions transforms module
-        v2.Resize((227, 227)),  # resize to desired shape
-        # v2.ToTensor() # transform img data into tensor, depreciated
+    transform1 = v2.Compose([
+        v2.Resize((227, 227)),  # Resize to desired shape
         v2.ToDtype(torch.float32, scale=True)
     ])
 
+    # Manually change path names if running on cpu
     trainSet = SnoutNoseDataset(ColabPath+"train_noses.txt",
-                                ColabPath+"images-original/images"
-                                , transform=transform1)
-    testSet = SnoutNoseDataset(ColabPath+"test_noses.txt",
-                               ColabPath+"images-original/images"
-                               , transform=transform1)
+                                ColabPath+"images-original/images",
+                                transform=transform1,
+                                num_workers=4)
 
-    train_dataloader = DataLoader(trainSet, batch_size=61, shuffle=True)  # experiment with batch_size
-    test_dataloader = DataLoader(testSet, batch_size=61, shuffle=True)
+    testSet = SnoutNoseDataset(ColabPath+"test_noses.txt",
+                               ColabPath+"images-original/images",
+                               transform=transform1,
+                               num_workers=4)
+
+    train_dataloader = DataLoader(trainSet, batch_size=batch_size, shuffle=True)  # experiment with batch_size
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min')
