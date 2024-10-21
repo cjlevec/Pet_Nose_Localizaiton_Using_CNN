@@ -1,8 +1,8 @@
-# For Colab Pruposes
-from google.colab import drive
+# For Colab Pruposes (Comment out if running on local machine)
+"""from google.colab import drive
 drive.mount('/content/drive')
 import sys
-sys.path.append('/content/drive/MyDrive/ELEC 475 Lab 2 CO')
+sys.path.append('/content/drive/MyDrive/ELEC 475 Lab 2 CO')"""
 
 import torch
 import torch.nn as nn
@@ -85,11 +85,11 @@ def main():
 
     print('running main ...')
 
-    #   read arguments from command line
-    """argParser = argparse.ArgumentParser()
+    # Read arguments from command line
+    argParser = argparse.ArgumentParser()
     argParser.add_argument('-s', metavar='state', type=str, help='parameter file (.pth)')
     argParser.add_argument('-e', metavar='epochs', type=int, help='# of epochs [30]')
-    argParser.add_argument('-b', metavar='batch size', type=int, help='batch size [32]')
+    argParser.add_argument('-b', metavar='batch size', type=int, help='batch size [256]')
     argParser.add_argument('-p', metavar='plot', type=str, help='output loss plot file (.png)')
 
     args = argParser.parse_args()
@@ -101,7 +101,7 @@ def main():
     if args.b != None:
         batch_size = args.b
     if args.p != None:
-        plot_file = args.p"""
+        plot_file = args.p
 
     print('\t\tn epochs = ', n_epochs)
     print('\t\tbatch size = ', batch_size)
@@ -116,16 +116,16 @@ def main():
     model = SnoutNet()
     model.to(device)
     model.apply(init_weights)
-    summary(model, input_size=(3, 227, 227), device='cuda') # Manually change to cpu if running on cpu
+    summary(model, input_size=(3, 227, 227), device=device)
 
     transform1 = v2.Compose([
         v2.Resize((227, 227)),  # Resize to desired shape
         v2.ToDtype(torch.float32, scale=True)
     ])
 
-    # Manually change path names if running on cpu
-    trainSet = SnoutNoseDataset(ColabPath+"train_noses.txt",
-                                ColabPath+"images-original/images",
+    # *** Manually change path names if running on cpu/ Colab gpu ***
+    trainSet = SnoutNoseDataset(HomePath+"train_noses.txt",
+                                HomePath+"images-original/images",
                                 transform=transform1)
 
     testSet = SnoutNoseDataset(ColabPath+"test_noses.txt",

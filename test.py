@@ -1,7 +1,5 @@
-# ... (rest of your code)
 import torch
 import numpy as np
-import datetime
 import argparse
 from model import SnoutNet
 from dataset import SnoutNoseDataset, DataLoader, transform1
@@ -12,6 +10,19 @@ HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
 ScottPath = "/Users/scottdoggett/PycharmProjects/Pet_Nose_Localizaiton_Using_CNN/oxford-iiit-pet-noses/"
 
 def main():
+
+
+    # Read arguments from command line
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument('-s', metavar='weights', type=str, help='parameter file (.pth)')
+    args = argParser.parse_args()
+
+    weights_file = None
+    if args.s != None:
+        weights_file = args.s
+
+    print('\t\tweights file = ', weights_file)
+
 
     device = 'cpu'
     if torch.cuda.is_available():
@@ -24,6 +35,7 @@ def main():
 
     # Evaluate the model
     model = SnoutNet()
+    model.load_state_dict(torch.load("weights.pth", map_location=torch.device('cpu')))
     model.eval()
     with torch.no_grad():
         for images, labels in test_dataloader:
