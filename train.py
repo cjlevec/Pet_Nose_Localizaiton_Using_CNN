@@ -13,11 +13,12 @@ import datetime
 import argparse
 from torchsummary import summary
 from model import SnoutNet
-from dataset import SnoutNoseDataset, DataLoader
+from dataset import SnoutNoseDataset, DataLoader, transform1, transformNoise, transformFlip
 
 # Added so that I can run the code on PyCharm and Colab
 ColabPath = "/content/drive/My Drive/ELEC 475 Lab 2 CO/oxford-iiit-pet-noses/"
 HomePath = "/Users/christianlevec/Documents/475 Lab 2/oxford-iiit-pet-noses/"
+ScottPath = "/Users/scottdoggett/PycharmProjects/oxford-iiit-pet-noses/"
 
 save_file = 'weights.pth'
 n_epochs = 30
@@ -91,6 +92,8 @@ def main():
     argParser.add_argument('-e', metavar='epochs', type=int, help='# of epochs [30]')
     argParser.add_argument('-b', metavar='batch size', type=int, help='batch size [256]')
     argParser.add_argument('-p', metavar='plot', type=str, help='output loss plot file (.png)')
+    argParser.add_argument('-a', metavar='augmentation', type=int, help='augmentation: 0=no augmentation, 1=flip, 2=noise')
+    # For the augmentation selection, 0 means there is no augmentation added, 1 means the image is flipped and 2 means noise is added
 
     args = argParser.parse_args()
 
@@ -102,11 +105,29 @@ def main():
         batch_size = args.b
     if args.p != None:
         plot_file = args.p
+    if args.a != None:
+        augmentation = args.a
+    else:
+        augmentation = 0
 
     print('\t\tn epochs = ', n_epochs)
     print('\t\tbatch size = ', batch_size)
     print('\t\tsave file = ', save_file)
     print('\t\tplot file = ', plot_file)
+    print('\t\taugmentation = ', augmentation)
+
+    finalTransformation = transform1
+    flipped = 0
+
+    if augmentation == 1:
+        flipped = 1
+        finalTransformation = transformFlip
+        print('\t\taugmentation: horizontal flip')
+    elif augmentation == 2:
+        finalTransformation = transformNoise
+        print('\t\taugmentation: original')
+    else:
+        print('\t\taugmentation: none')
 
     device = 'cpu'
     if torch.cuda.is_available():
@@ -118,21 +139,15 @@ def main():
     model.apply(init_weights)
     summary(model, input_size=(3, 227, 227), device=device)
 
-    transform1 = v2.Compose([
-        v2.Resize((227, 227)),  # Resize to desired shape
-        v2.ToDtype(torch.float32, scale=True)
-    ])
 
     # *** Manually change path names if running on cpu/ Colab gpu ***
-    trainSet = SnoutNoseDataset(HomePath+"train_noses.txt",
-                                HomePath+"images-original/images",
-                                transform=transform1)
+    trainSet = SnoutNoseDataset(ScottPath+"train_noses.txt",
+                                ScottPath+"images-original/images",
+                                transform=finalTransformation,
+                                flipped=flipped)
 
-    testSet = SnoutNoseDataset(ColabPath+"test_noses.txt",
-                               ColabPath+"images-original/images",
-                               transform=transform1)
 
-    train_dataloader = DataLoader(trainSet, batch_size=batch_size, shuffle=True, num_workers=4)  # experiment with batch_size
+    train_dataloader = DataLoader(trainSet, batch_size=batch_size, shuffle=True)  # experiment with batch_size
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min')
