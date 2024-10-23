@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import argparse
 from model import SnoutNet
+import time
 from dataset import SnoutNoseDataset, DataLoader, transform1, transformNoise, transformFlip, transformBoth
 
 # Added so that I can run the code on PyCharm and Colab
@@ -63,6 +64,7 @@ def main():
     model = SnoutNet()
     model.load_state_dict(torch.load(weights_file, map_location=torch.device('cpu')))
     model.eval()
+    start_time = time.time()
     with torch.no_grad():
         for images, labels in test_dataloader:
             images = images.to(device)
@@ -75,6 +77,7 @@ def main():
                 # Euclidian distance calculation
                 distance = np.linalg.norm(predicted - target)
                 distances.append(distance)
+    end_time = time.time()
 
     # Calculate statistics
     min_distance = np.min(distances)
@@ -82,6 +85,8 @@ def main():
     max_distance = np.max(distances)
     std_distance = np.std(distances)
 
+    elapsed_time = end_time - start_time
+    print(f"Program executed in: {elapsed_time:.4f} seconds")
     print("Localization accuracy statistics:")
     print("Minimum distance:", min_distance)
     print("Mean distance:", mean_distance)

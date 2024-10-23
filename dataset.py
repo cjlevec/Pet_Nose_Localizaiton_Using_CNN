@@ -13,13 +13,13 @@ from torch.utils.data import DataLoader, Dataset # for dataloader, and parent Da
 from torchvision.transforms import v2
 
 class AddGaussianNoise:
-    def __init__(self, mean=0.0, std=0.05):  # Lower std to reduce noise intensity
+    def __init__(self, mean=0.0, std=0.05):
         self.mean = mean
         self.std = std
 
     def __call__(self, tensor):
-        noise = torch.randn(tensor.size()) * self.std + self.mean
-        return torch.clamp(tensor + noise, 0.0, 1.0)  # Add noise and clamp to [0, 1]
+        noise = torch.randn(tensor.size()) * self.std + self.mean # Create noise
+        return torch.clamp(tensor + noise, 0.0, 1.0)  # Add noise and clamp to [0, 1] to ensure values stay in bounds
 
 # Transform for original images -> 227x227 -> tensor
 transform1 = v2.Compose([  # v2 is an instance of torchvisions transforms module
