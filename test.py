@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import argparse
 from model import SnoutNet
-from dataset import SnoutNoseDataset, DataLoader, transform1, transformNoise, transformFlip
+from dataset import SnoutNoseDataset, DataLoader, transform1, transformNoise, transformFlip, transformBoth
 
 # Added so that I can run the code on PyCharm and Colab
 ColabPath = "/content/drive/My Drive/ELEC 475 Lab 2 CO/oxford-iiit-pet-noses/"
@@ -36,6 +36,10 @@ def main():
     elif augmentation == 2:
         finalTransformation = transformNoise
         print('\t\taugmentation: original')
+    elif augmentation == 3:
+        flipped = 1
+        finalTransformation = transformBoth
+        print('\t\taugmentation: both')
     else:
         print('\t\taugmentation: none')
 

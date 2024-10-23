@@ -41,6 +41,14 @@ transformFlip = v2.Compose([
     v2.RandomHorizontalFlip(p=1.0)
 ])
 
+# Transform with addition of flipping horizontally
+transformBoth = v2.Compose([
+    v2.Resize((227, 227)),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.RandomHorizontalFlip(p=1.0),
+    AddGaussianNoise(mean=0.0, std=0.1)
+])
+
 
 class SnoutNoseDataset (Dataset):
     def __init__ (self, annotations_file, img_dir, transform = transform1, flipped = 0, target_transform = None):
