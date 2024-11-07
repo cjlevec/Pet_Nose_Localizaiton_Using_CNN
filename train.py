@@ -97,6 +97,9 @@ def main():
 
     args = argParser.parse_args()
 
+    HomePath = None
+    if args.p != None:
+        HomePath = args.p
     if args.s != None:
         save_file = args.s
     if args.e != None:
@@ -147,8 +150,8 @@ def main():
 
 
     # *** Manually change path names if running on cpu/ Colab gpu ***
-    trainSet = SnoutNoseDataset(ScottPath+"train_noses.txt",
-                                ScottPath+"images-original/images",
+    trainSet = SnoutNoseDataset(HomePath+"train_noses.txt",
+                                HomePath+"images-original/images",
                                 transform=finalTransformation,
                                 flipped=flipped)
 

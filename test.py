@@ -17,11 +17,16 @@ def main():
     argParser = argparse.ArgumentParser()
     argParser.add_argument('-w', metavar='weights', type=str, help='parameter file (.pth)')
     argParser.add_argument('-a', metavar='augmentation', type=int, help='augmentation: 0=no augmentation, 1=flip, 2=noise')
+    argParser.add_argument('-p', metavar='file path', type=int, help='file path to directory with images')
+
     args = argParser.parse_args()
 
+    HomePath = None
     weights_file = None
     if args.w != None:
         weights_file = args.w
+    if args.p != None:
+        HomePath = args.p
     if args.a != None:
         augmentation = args.a
     else:
@@ -53,8 +58,8 @@ def main():
 
     # Create test set
     #testSet = SnoutNoseDataset(HomePath+"test_noses.txt", HomePath+"images-original/images", transform=transform)
-    testSet = SnoutNoseDataset(ScottPath+"test_noses.txt",
-                               ScottPath+"images-original/images",
+    testSet = SnoutNoseDataset(HomePath+"test_noses.txt",
+                               HomePath+"images-original/images",
                                transform=finalTransformation,
                                flipped=flipped)
 

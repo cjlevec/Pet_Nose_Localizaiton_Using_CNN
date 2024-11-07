@@ -102,3 +102,31 @@ class SnoutNoseDataset (Dataset):
         scaled_coordinates = torch.tensor([scaled_x, scaled_y], dtype=torch.float32)
 
         return image, scaled_coordinates    # Both in tensor form
+
+    ##### MAIN ####
+
+    import random
+    import matplotlib.pyplot as plt
+
+    trainSet = SnoutNoseDataset(ScottPath+"train_noses.txt",
+                                ScottPath+"images-original/images"
+                                , transform=transform1)
+    testSet = SnoutNoseDataset(ScottPath+"test_noses.txt",
+                               ScottPath+"images-original/images"
+                               , transform=transform1)
+
+    train_dataloader = DataLoader(trainSet, batch_size=61, shuffle=True)  # experiment with batch_size
+    test_dataloader = DataLoader(testSet, batch_size=61, shuffle=True)
+
+    # Number of random images to display
+    num_images = 5
+    # Get random indices from the dataset
+    random_indices = random.sample(range(len(trainSet)), num_images)
+
+    # Loop over the random indices
+    for idx in range (0, num_images):
+        image_test, label = trainSet[idx]  # Get the image and label
+        plt.imshow(image_test.permute(1, 2, 0))  # Permute the dimensions to (height, width, channels) from (ch, height, width)
+        plt.title(f"Label: {label}")  # Set the title to the label
+        plt.plot(label[0], label[1], marker='o', color='red', markersize=10)
+        plt.show()  # Show the image
