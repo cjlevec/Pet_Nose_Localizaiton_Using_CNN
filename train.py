@@ -13,7 +13,7 @@ import datetime
 import argparse
 from torchsummary import summary
 from model import SnoutNet
-from dataset import SnoutNoseDataset, DataLoader, transform1, transformNoise, transformFlip
+from dataset import SnoutNoseDataset, DataLoader, transform1, transformNoise, transformFlip, transformBoth
 
 # Added so that I can run the code on PyCharm and Colab
 ColabPath = "/content/drive/My Drive/ELEC 475 Lab 2 CO/oxford-iiit-pet-noses/"
@@ -97,6 +97,9 @@ def main():
 
     args = argParser.parse_args()
 
+    HomePath = None
+    if args.p != None:
+        HomePath = args.p
     if args.s != None:
         save_file = args.s
     if args.e != None:
@@ -126,8 +129,14 @@ def main():
     elif augmentation == 2:
         finalTransformation = transformNoise
         print('\t\taugmentation: original')
+    elif augmentation == 3:
+        flipped = 1
+        finalTransformation = transformBoth
+        print('\t\taugmentation: both')
     else:
         print('\t\taugmentation: none')
+
+
 
     device = 'cpu'
     if torch.cuda.is_available():
@@ -141,8 +150,8 @@ def main():
 
 
     # *** Manually change path names if running on cpu/ Colab gpu ***
-    trainSet = SnoutNoseDataset(ScottPath+"train_noses.txt",
-                                ScottPath+"images-original/images",
+    trainSet = SnoutNoseDataset(HomePath+"train_noses.txt",
+                                HomePath+"images-original/images",
                                 transform=finalTransformation,
                                 flipped=flipped)
 

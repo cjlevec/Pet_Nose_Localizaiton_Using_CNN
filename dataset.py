@@ -13,13 +13,13 @@ from torch.utils.data import DataLoader, Dataset # for dataloader, and parent Da
 from torchvision.transforms import v2
 
 class AddGaussianNoise:
-    def __init__(self, mean=0.0, std=0.05):  # Lower std to reduce noise intensity
+    def __init__(self, mean=0.0, std=0.05):
         self.mean = mean
         self.std = std
 
     def __call__(self, tensor):
-        noise = torch.randn(tensor.size()) * self.std + self.mean
-        return torch.clamp(tensor + noise, 0.0, 1.0)  # Add noise and clamp to [0, 1]
+        noise = torch.randn(tensor.size()) * self.std + self.mean # Create noise
+        return torch.clamp(tensor + noise, 0.0, 1.0)  # Add noise and clamp to [0, 1] to ensure values stay in bounds
 
 # Transform for original images -> 227x227 -> tensor
 transform1 = v2.Compose([  # v2 is an instance of torchvisions transforms module
@@ -39,6 +39,14 @@ transformFlip = v2.Compose([
     v2.Resize((227, 227)),
     v2.ToDtype(torch.float32, scale=True),
     v2.RandomHorizontalFlip(p=1.0)
+])
+
+# Transform with addition of flipping horizontally
+transformBoth = v2.Compose([
+    v2.Resize((227, 227)),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.RandomHorizontalFlip(p=1.0),
+    AddGaussianNoise(mean=0.0, std=0.1)
 ])
 
 
@@ -94,3 +102,31 @@ class SnoutNoseDataset (Dataset):
         scaled_coordinates = torch.tensor([scaled_x, scaled_y], dtype=torch.float32)
 
         return image, scaled_coordinates    # Both in tensor form
+
+    ##### MAIN ####
+
+    import random
+    import matplotlib.pyplot as plt
+
+    trainSet = SnoutNoseDataset(ScottPath+"train_noses.txt",
+                                ScottPath+"images-original/images"
+                                , transform=transform1)
+    testSet = SnoutNoseDataset(ScottPath+"test_noses.txt",
+                               ScottPath+"images-original/images"
+                               , transform=transform1)
+
+    train_dataloader = DataLoader(trainSet, batch_size=61, shuffle=True)  # experiment with batch_size
+    test_dataloader = DataLoader(testSet, batch_size=61, shuffle=True)
+
+    # Number of random images to display
+    num_images = 5
+    # Get random indices from the dataset
+    random_indices = random.sample(range(len(trainSet)), num_images)
+
+    # Loop over the random indices
+    for idx in range (0, num_images):
+        image_test, label = trainSet[idx]  # Get the image and label
+        plt.imshow(image_test.permute(1, 2, 0))  # Permute the dimensions to (height, width, channels) from (ch, height, width)
+        plt.title(f"Label: {label}")  # Set the title to the label
+        plt.plot(label[0], label[1], marker='o', color='red', markersize=10)
+        plt.show()  # Show the image
