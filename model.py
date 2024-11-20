@@ -51,19 +51,3 @@ class SnoutNet(nn.Module):
 		X = F.relu(X)
 
 		return X
-
-
-### MAIN ###
-
-"""SnoutModel = SnoutNet() # Must create instance of model
-A = torch.rand(1, 3, 227, 227) # Create dummy tensor to test
-print(A.shape) # Print initial tensor shape
-output = SnoutModel(A) # Pass tensor into the model
-print(output.shape) # Check output shape"""
-
-"""
-Calculation Mistake: When you defined your first fully connected layer, 
-you need to make sure it matches the size that results from the last convolutional layer 
-after pooling and flattening.
-
-"""
